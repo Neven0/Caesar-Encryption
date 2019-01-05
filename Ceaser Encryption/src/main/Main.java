@@ -74,12 +74,10 @@ public class Main {
 			catch(java.util.InputMismatchException e) 
 			{
 				System.out.println("Exception has occured because of wrong input. Program will now close.");
-				//System.exit(0);
 			}
 			catch(Exception e) 
 			{
 				System.out.println("Exception has occured. Program will now close.");
-				System.exit(0);
 			}
 			
 			switch (answer) 
@@ -160,12 +158,10 @@ public class Main {
 			catch(java.util.InputMismatchException e) 
 			{
 				System.out.println("Exception has occured because of wrong input. Program will now close.");
-				System.exit(0);
 			}
 			catch(Exception e) 
 			{
 				System.out.println("Exception has occured. Program will now close.");
-				System.exit(0);
 			} 
 			
 			switch(answer) 
