@@ -29,14 +29,15 @@ public final class ExpandedCaeser {
 			
 			for(int i=0; i<Alphabet.length; i++) 
 			{
-				if(Shift+i<Alphabet.length)
+				/*if(Shift+i<Alphabet.length)
 				{
 					CharArray[i]=Alphabet[Shift+i];
 				}
 				else 
 				{
 					CharArray[i]=Alphabet[(Shift+i)-Alphabet.length];
-				}
+				}*/
+				CharArray[i]=Shift+i<Alphabet.length ? Alphabet[Shift+i] : Alphabet[(Shift+i)-Alphabet.length];
 			}
 			Shift++;
 			ShiftedArraysList.add(CharArray);
@@ -74,7 +75,7 @@ public final class ExpandedCaeser {
 			AltDefNo=ThreadLocalRandom.current().nextInt(100,999+1);
 			
 			FinalSeed=((long)defaultNo*1000+(long)ShiftNo)*1000+(long)AltDefNo;
-			if(NoOfDigits(GetFinalSeed(FinalSeed), true)<3) 
+			if(NoOfZero(GetFinalSeed(FinalSeed))<3) 
 			{
 				GoodSeed=true;
 			}
@@ -105,28 +106,28 @@ public final class ExpandedCaeser {
 		return  (long)defaultNumber*((long)FinalNoChange(ShiftNumber)*(long)FinalNoChange(AltDirection));
 	}
 
-	private int NoOfDigits(long number, boolean CheckZero) // Returns number of digits or 0 in a number
+	private int NoOfDigits(long number) // Returns number of digits or 0 in a number
 	{
 		int digits=0;
-		if(CheckZero==true)
+		while (number > 0) 
 		{
-			while (number > 0) 
-			{
-			    if(number%10==0) 
-			    {
-				    digits++;
-			    }
-			    number = number / 10;
-	
-			}
+			digits++;
+			number = number / 10;
 		}
-		else 
+		return digits;
+	}
+	
+	private int NoOfZero(long number) 
+	{
+		int digits=0;
+		while (number > 0) 
 		{
-			while (number > 0) 
-			{
-				    digits++;
-			    number = number / 10;
-			}
+		    if(number%10==0) 
+		    {
+			    digits++;
+		    }
+		    number = number / 10;
+
 		}
 		return digits;
 	}
@@ -192,14 +193,8 @@ public final class ExpandedCaeser {
 		
 		List<Long> ListofSeeds=new ArrayList<Long>();
 		
-		if(FirstForward==true) 
-		{
-			ListofSeeds=GetListofSeedNo(FinalSeed, ReverseSeed);
-		}
-		else 
-		{
-			ListofSeeds=GetListofSeedNo(ReverseSeed, FinalSeed);
-		}
+		ListofSeeds=FirstForward==true ? GetListofSeedNo(FinalSeed, ReverseSeed) : GetListofSeedNo(ReverseSeed, FinalSeed);
+		
 		char[] sentenceChar=sentence.toCharArray();
 		int ListIndex=0;
 		
@@ -209,16 +204,10 @@ public final class ExpandedCaeser {
 			{
 				if(sentenceChar[i]==GetChar(j)) 
 				{
-					if(FirstRight==true) 
-					{
-						sentenceChar[i]=GetChar(ListofSeeds.get(ListIndex), j, FirstRight); 
-						FirstRight=false;
-					}
-					else 
-					{
-						sentenceChar[i]=GetChar(ListofSeeds.get(ListIndex), j, FirstRight);
-						FirstRight=true;
-					}
+					sentenceChar[i]=GetChar(ListofSeeds.get(ListIndex), j, FirstRight);
+					
+					FirstRight=FirstRight ? false : true;
+					
 					ListIndex++;
 					if(ListIndex>=ListofSeeds.size()) 
 					{
@@ -229,14 +218,14 @@ public final class ExpandedCaeser {
 			}
 		}
 		
-		return sentence=new String(sentenceChar);
+		return new String(sentenceChar);
 	}
 	
 	private  List<Long> GetListofSeedNo(long FirstNo, long SecondNo) //Returns the list of seed numbers used as array shifts
 	{
 		List<Long> ListOfSeedNo= new ArrayList<Long>();
 		long temp=FirstNo;
-		int Digits=NoOfDigits(temp, false);
+		int Digits=NoOfDigits(temp);
 		for(int i=0; i<Digits; i++) 
 		{	
 			if(FirstNo==0) 
@@ -245,11 +234,11 @@ public final class ExpandedCaeser {
 				break;
 			}
 			
-			for(int j=0; j<NoOfDigits(FirstNo, false); j++) 
+			for(int j=0; j<NoOfDigits(FirstNo); j++) 
 			{
-				ListOfSeedNo.add(FirstNo/(long)Math.pow(10, NoOfDigits(FirstNo, false)-j-1));
+				ListOfSeedNo.add(FirstNo/(long)Math.pow(10, NoOfDigits(FirstNo)-j-1));
 			}
-		FirstNo%=Math.pow(10, NoOfDigits(FirstNo, false)-1); 
+		FirstNo%=Math.pow(10, NoOfDigits(FirstNo)-1); 
 			
 		}
 		
@@ -261,11 +250,11 @@ public final class ExpandedCaeser {
 				break;
 			}
 			
-			for(int j=0; j<NoOfDigits(SecondNo, false); j++) 
+			for(int j=0; j<NoOfDigits(SecondNo); j++) 
 			{
-				ListOfSeedNo.add(SecondNo/(long)Math.pow(10, NoOfDigits(SecondNo, false)-j-1));
+				ListOfSeedNo.add(SecondNo/(long)Math.pow(10, NoOfDigits(SecondNo)-j-1));
 			}
-			SecondNo%=Math.pow(10, NoOfDigits(SecondNo, false)-1); 
+			SecondNo%=Math.pow(10, NoOfDigits(SecondNo)-1); 
 			
 		}
 		return ListOfSeedNo;
@@ -274,7 +263,7 @@ public final class ExpandedCaeser {
 	private long GetReverseOrder(long number) //Reverse the order of numbers
 	{
 		long ReverseSeed=0;
-		int Digits=NoOfDigits(number, false);
+		int Digits=NoOfDigits(number);
 		for(int i=0;i<Digits;i++) 
 		{
 			ReverseSeed*=10;
@@ -286,7 +275,7 @@ public final class ExpandedCaeser {
 	
 	public boolean CheckKey(long Key) //Check if the given key meets the criteria
 	{
-		if(NoOfDigits(Key, false)!=12 || NoOfDigits(GetFinalSeed(Key), true)>=3) 
+		if(NoOfDigits(Key)!=12 || NoOfZero(GetFinalSeed(Key))>=3) 
 		{
 			System.out.println("Invalid key");
 			return false;
@@ -318,14 +307,8 @@ public final class ExpandedCaeser {
 		
 		List<Long> ListofSeeds=new ArrayList<Long>();
 		
-		if(FirstForward==true) 
-		{
-			ListofSeeds=GetListofSeedNo(FinalSeed, ReverseSeed);
-		}
-		else 
-		{
-			ListofSeeds=GetListofSeedNo(ReverseSeed, FinalSeed);
-		}
+		ListofSeeds=FirstForward==true ? GetListofSeedNo(FinalSeed, ReverseSeed) : GetListofSeedNo(ReverseSeed, FinalSeed);
+		
 		char[] sentenceChar=text.toCharArray();
 		
 		int ListIndex=0;
@@ -351,7 +334,7 @@ public final class ExpandedCaeser {
 			}
 		}
 		
-		return text=new String(sentenceChar);
+		return new String(sentenceChar);
 	}
 	
 	private char GetChar(int index) //Return character from Alphabet array
